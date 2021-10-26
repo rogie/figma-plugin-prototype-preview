@@ -1,0 +1,10 @@
+{
+  "name": "Prototype Preview ",
+  "id": "1034831564584102687",
+  "api": "1.0.0",
+  "main": "code.js",
+  "enablePrivatePluginApi": true,
+  "editorType": [
+    "figma"
+  ]
+}
