@@ -6,5 +6,8 @@
   "enablePrivatePluginApi": true,
   "editorType": [
     "figma"
+  ],
+  "relaunchButtons": [
+    {"command": "open", "name": "Preview Prototype"}
   ]
 }

@@ -7,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+figma.root.setRelaunchData({ open: 'Open this prototype in a Plugin window.' });
 const setPrefs = (prefs) => __awaiter(this, void 0, void 0, function* () {
     yield figma.clientStorage.setAsync('prefs', prefs);
 });
@@ -57,4 +58,9 @@ const showPrototype = () => __awaiter(this, void 0, void 0, function* () {
     });
 });
 showPrototype();
-figma.on('selectionchange', showPrototype);
+figma.on('selectionchange', () => {
+    if (figma.currentPage.selection.length > 0) {
+        figma.currentPage.selection[0].setRelaunchData({ open: 'Open this prototype in a Plugin window.' });
+    }
+    showPrototype();
+});

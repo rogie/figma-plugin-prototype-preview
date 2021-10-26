@@ -1,3 +1,5 @@
+figma.root.setRelaunchData({open: 'Open this prototype in a Plugin window.'})
+
 const setPrefs = async (prefs) => {
   await figma.clientStorage.setAsync('prefs',prefs)
 }
@@ -59,4 +61,9 @@ const showPrototype = async () => {
 }
 showPrototype()
 
-figma.on('selectionchange', showPrototype)
+figma.on('selectionchange', () => {
+  if(figma.currentPage.selection.length > 0){
+    figma.currentPage.selection[0].setRelaunchData({open: 'Open this prototype in a Plugin window.'})
+  }
+  showPrototype()
+})
