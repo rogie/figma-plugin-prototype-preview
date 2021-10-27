@@ -56,6 +56,8 @@ const showPrototype = (flowStartingPointId = getFlowStartingPointId()) => __awai
         position: fixed;
         bottom: 12px;
         left: 12px;
+        max-width: calc(100vw - 24px);
+        text-overflow: ellipsis;
       }
       select{
         padding: 4px 24px 4px 8px;
