@@ -9,10 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 figma.root.setRelaunchData({ open: 'Open this prototype in a Plugin window.' });
 const setPrefs = (prefs) => __awaiter(this, void 0, void 0, function* () {
-    yield figma.clientStorage.setAsync('prefs', prefs);
+    return yield figma.clientStorage.setAsync('prefs', prefs);
 });
 const getPrefs = () => __awaiter(this, void 0, void 0, function* () {
-    return (yield figma.clientStorage.getAsync('prefs')) || {
+    let prefs = yield figma.clientStorage.getAsync('prefs');
+    return prefs || {
         width: 300,
         height: 500
     };
@@ -35,6 +36,9 @@ const showPrototype = (flowStartingPointId = getFlowStartingPointId()) => __awai
       *::before,
       *::after {
         box-sizing: border-box;
+      }
+      html{
+        background: black;
       }
       iframe, html, body{
         border: 0;
@@ -79,9 +83,7 @@ const showPrototype = (flowStartingPointId = getFlowStartingPointId()) => __awai
       }
     </style>
     <iframe id="preview" src="${embedUrl}" allowfullscreen></iframe>
-    <select id="flows">
-      ${flows.map(flow => `<option value="${flow.nodeId}" ${flow.nodeId === flowStartingPointId ? "selected" : ""}>${flow.name}</option>`).join('')}
-    </select>
+    ${flows.length > 1 ? `<select id="flows">${flows.map(flow => `<option value="${flow.nodeId}" ${flow.nodeId === flowStartingPointId ? "selected" : ""}>${flow.name}</option>`).join('')}</select>` : ''}
     <script>
       let iframe = document.getElementById('preview');
       let flows = document.getElementById('flows');
@@ -89,15 +91,17 @@ const showPrototype = (flowStartingPointId = getFlowStartingPointId()) => __awai
         parent.postMessage({pluginMessage: {width: iframe.clientWidth, height: iframe.clientHeight}},"*")
       })
       observer.observe(iframe, { attributes: true });
-      flows.addEventListener('input',(e,flow) => {
-        parent.postMessage({pluginMessage: {flowStartingPointId: flows.value}},"*")
-      })
+      if(flows){
+        flows.addEventListener('input',(e,flow) => {
+          parent.postMessage({pluginMessage: {flowStartingPointId: flows.value}},"*")
+        })
+      }
     </script>`, prefs);
     figma.ui.on('message', (msg) => {
         let { height, width, flowStartingPointId } = msg;
         if (height && width) {
             figma.ui.resize(width, height);
-            setPrefs(prefs);
+            setPrefs({ width: width, height: height });
         }
         else if (flowStartingPointId) {
             showPrototype(flowStartingPointId);

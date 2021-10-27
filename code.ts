@@ -1,11 +1,12 @@
 figma.root.setRelaunchData({open: 'Open this prototype in a Plugin window.'})
 
 const setPrefs = async (prefs) => {
-  await figma.clientStorage.setAsync('prefs',prefs)
+  return await figma.clientStorage.setAsync('prefs',prefs)
 }
 
 const getPrefs = async () => {
-  return await figma.clientStorage.getAsync('prefs') || {
+  let prefs = await figma.clientStorage.getAsync('prefs')
+  return prefs || {
     width: 300, 
     height: 500
   }
@@ -36,6 +37,9 @@ const showPrototype = async (flowStartingPointId = getFlowStartingPointId()) => 
       *::before,
       *::after {
         box-sizing: border-box;
+      }
+      html{
+        background: black;
       }
       iframe, html, body{
         border: 0;
@@ -80,9 +84,7 @@ const showPrototype = async (flowStartingPointId = getFlowStartingPointId()) => 
       }
     </style>
     <iframe id="preview" src="${embedUrl}" allowfullscreen></iframe>
-    <select id="flows">
-      ${flows.map(flow => `<option value="${flow.nodeId}" ${flow.nodeId === flowStartingPointId? "selected" : ""}>${flow.name}</option>`).join('')}
-    </select>
+    ${ flows.length > 1? `<select id="flows">${flows.map(flow => `<option value="${flow.nodeId}" ${flow.nodeId === flowStartingPointId? "selected" : ""}>${flow.name}</option>`).join('')}</select>` : '' }
     <script>
       let iframe = document.getElementById('preview');
       let flows = document.getElementById('flows');
@@ -90,9 +92,11 @@ const showPrototype = async (flowStartingPointId = getFlowStartingPointId()) => 
         parent.postMessage({pluginMessage: {width: iframe.clientWidth, height: iframe.clientHeight}},"*")
       })
       observer.observe(iframe, { attributes: true });
-      flows.addEventListener('input',(e,flow) => {
-        parent.postMessage({pluginMessage: {flowStartingPointId: flows.value}},"*")
-      })
+      if(flows){
+        flows.addEventListener('input',(e,flow) => {
+          parent.postMessage({pluginMessage: {flowStartingPointId: flows.value}},"*")
+        })
+      }
     </script>`,
     prefs
   );
@@ -101,7 +105,7 @@ const showPrototype = async (flowStartingPointId = getFlowStartingPointId()) => 
     let {height, width, flowStartingPointId} = msg
     if(height && width){
       figma.ui.resize(width, height)
-      setPrefs(prefs)
+      setPrefs({width: width, height: height})
     } else if(flowStartingPointId){
       showPrototype(flowStartingPointId)
     }
